@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Long> {
     List<WorkoutLog> findByUserIdAndLogDate(Long userId, LocalDate logDate);
+    long countByUserId(Long userId);
 }

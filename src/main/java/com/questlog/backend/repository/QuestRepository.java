@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface QuestRepository extends JpaRepository<Quest, Long> {
     List<Quest> findByUserIdAndQuestDate(Long userId, LocalDate questDate);
+    long countByUserIdAndIsCompleted(Long userId, boolean isCompleted);
+    long countByUserIdAndTitleAndIsCompleted(Long userId, String title, boolean isCompleted);
 }

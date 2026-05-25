@@ -38,6 +38,9 @@ class QuestServiceImplTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private com.questlog.backend.service.AchievementService achievementService;
+
     @InjectMocks
     private QuestServiceImpl questService;
 

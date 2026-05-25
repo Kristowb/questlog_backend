@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface DietLogRepository extends JpaRepository<DietLog, Long> {
     List<DietLog> findByUserIdAndLogDate(Long userId, LocalDate logDate);
+    long countByUserId(Long userId);
+    long countByUserIdAndProteinGreaterThanEqual(Long userId, double protein);
 }

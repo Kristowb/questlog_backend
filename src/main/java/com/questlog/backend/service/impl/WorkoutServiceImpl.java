@@ -21,6 +21,7 @@ public class WorkoutServiceImpl implements WorkoutService {
 
     private final WorkoutLogRepository workoutLogRepository;
     private final UserService userService;
+    private final com.questlog.backend.service.AchievementService achievementService;
 
     @Override
     @Transactional
@@ -42,6 +43,10 @@ public class WorkoutServiceImpl implements WorkoutService {
         WorkoutLog savedLog = workoutLogRepository.save(logObj);
         log.info("Memberikan hadiah +10 STRENGTH XP ke user ID: {}", logObj.getUserId());
         userService.addXp(logObj.getUserId(), 10, "STRENGTH");
+        
+        // Periksa kelayakan pencapaian
+        achievementService.checkAndUnlockAchievements(logObj.getUserId(), "WORKOUT");
+        
         return WorkoutLogResponse.fromEntity(savedLog);
     }
 

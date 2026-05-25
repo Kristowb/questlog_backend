@@ -25,6 +25,7 @@ public class QuestServiceImpl implements QuestService {
     private final QuestRepository questRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final com.questlog.backend.service.AchievementService achievementService;
 
     @Override
     @Transactional
@@ -131,6 +132,10 @@ public class QuestServiceImpl implements QuestService {
 
         log.info("Quest ID {} berhasil diselesaikan. Menghadiahi +{} {} XP.", questId, quest.getXpReward(), quest.getType());
         userService.addXp(quest.getUserId(), quest.getXpReward(), quest.getType());
+
+        // Periksa kelayakan pencapaian
+        achievementService.checkAndUnlockAchievements(quest.getUserId(), "QUEST");
+        achievementService.checkAndUnlockAchievements(quest.getUserId(), "HYDRATION");
 
         return com.questlog.backend.dto.QuestResponse.fromEntity(quest);
     }

@@ -21,6 +21,7 @@ public class DietServiceImpl implements DietService {
 
     private final DietLogRepository dietLogRepository;
     private final UserService userService;
+    private final com.questlog.backend.service.AchievementService achievementService;
 
     @Override
     @Transactional
@@ -49,6 +50,10 @@ public class DietServiceImpl implements DietService {
         }
         
         userService.addXp(logObj.getUserId(), xpReward, "VITALITY");
+        
+        // Periksa kelayakan pencapaian
+        achievementService.checkAndUnlockAchievements(logObj.getUserId(), "DIET");
+        
         return DietLogResponse.fromEntity(savedLog);
     }
 

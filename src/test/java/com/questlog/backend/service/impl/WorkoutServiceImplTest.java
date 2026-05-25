@@ -30,6 +30,9 @@ class WorkoutServiceImplTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private com.questlog.backend.service.AchievementService achievementService;
+
     @InjectMocks
     private WorkoutServiceImpl workoutService;
 
