@@ -10,6 +10,7 @@ import com.questlog.backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ public class AuthServiceImpl implements AuthService {
     private final GoogleIdTokenVerifier verifier;
 
     @Override
+    @Transactional
     public UserResponse authenticateGoogleToken(String idTokenString) throws Exception {
         log.info("Memulai proses verifikasi Google ID Token");
         

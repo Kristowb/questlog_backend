@@ -27,6 +27,9 @@ public class DietServiceImpl implements DietService {
     public DietLogResponse addDietLog(DietLogRequest request) {
         log.info("Menambahkan log diet baru untuk user ID: {}", request.userId());
         
+        // Validasi keberadaan user
+        userService.getUserById(request.userId());
+        
         DietLog logObj = DietLog.builder()
                 .userId(request.userId())
                 .foodName(request.foodName())
@@ -50,8 +53,13 @@ public class DietServiceImpl implements DietService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DietLogResponse> getDailyDiet(Long userId, LocalDate date) {
         log.info("Mengambil riwayat diet harian untuk user ID: {} pada tanggal: {}", userId, date);
+        
+        // Validasi keberadaan user
+        userService.getUserById(userId);
+        
         return dietLogRepository.findByUserIdAndLogDate(userId, date).stream()
                 .map(DietLogResponse::fromEntity)
                 .toList();

@@ -22,7 +22,7 @@ public class PremiumServiceImpl implements PremiumService {
         // Memanggil getUserById untuk memvalidasi keberadaan user (akan melempar Exception jika tidak ditemukan)
         userService.getUserById(userId);
 
-        String mockCheckoutUrl = "http://localhost:8080/api/premium/mock-checkout?userId=" + userId;
+        String mockCheckoutUrl = "http://localhost:8080/api/v1/premium/mock-checkout?userId=" + userId;
 
         log.info("Sesi pembayaran premium (mock) berhasil dibuat untuk user ID: {}", userId);
         return new CheckoutSessionResponse(mockCheckoutUrl, "SUCCESS_MOCK");
@@ -119,7 +119,7 @@ public class PremiumServiceImpl implements PremiumService {
                 <h2>Pro Adventurer Pack</h2>
                 <p>Buka fitur penjadwalan latihan intensif otomatis & analisis diet daging tingkat lanjut secara permanen.</p>
                 <div class="price">15.00 <span>USDC (Crypto)</span></div>
-                <form action="/api/premium/mock-success" method="get">
+                <form action="/api/v1/premium/mock-success" method="get">
                     <input type="hidden" name="userId" value="%d">
                     <button type="submit" class="btn-pay">Bayar via Stripe Crypto</button>
                 </form>

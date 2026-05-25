@@ -27,6 +27,9 @@ public class WorkoutServiceImpl implements WorkoutService {
     public WorkoutLogResponse addWorkoutLog(WorkoutLogRequest request) {
         log.info("Menambahkan log latihan fisik baru untuk user ID: {}", request.userId());
         
+        // Validasi keberadaan user
+        userService.getUserById(request.userId());
+
         WorkoutLog logObj = WorkoutLog.builder()
                 .userId(request.userId())
                 .exerciseName(request.exerciseName())
@@ -43,8 +46,13 @@ public class WorkoutServiceImpl implements WorkoutService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WorkoutLogResponse> getDailyWorkouts(Long userId, LocalDate date) {
         log.info("Mengambil riwayat log latihan fisik harian untuk user ID: {} pada tanggal: {}", userId, date);
+        
+        // Validasi keberadaan user
+        userService.getUserById(userId);
+        
         return workoutLogRepository.findByUserIdAndLogDate(userId, date).stream()
                 .map(WorkoutLogResponse::fromEntity)
                 .toList();
