@@ -5,7 +5,6 @@
   },
   "deploy": {
     "startCommand": "java -jar target/backend-0.0.1-SNAPSHOT.jar",
-    "healthcheckPath": "/api-docs",
     "healthcheckTimeout": 120,
     "restartPolicyType": "ON_FAILURE"
   }

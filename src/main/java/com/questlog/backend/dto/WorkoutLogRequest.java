@@ -16,5 +16,4 @@ public record WorkoutLogRequest(
     int reps,
     @PositiveOrZero(message = "Weight tidak boleh negatif")
     double weight
-) {
-}
+) {}

@@ -1,5 +1,4 @@
 package com.questlog.backend.dto;
-
 import com.questlog.backend.model.Quest;
 import java.time.LocalDate;
 
