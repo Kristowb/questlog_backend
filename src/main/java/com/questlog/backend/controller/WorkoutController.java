@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.questlog.backend.dto.WorkoutStatsResponse;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -37,6 +38,14 @@ public class WorkoutController {
                                                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         LocalDate targetDate = date != null ? date : LocalDate.now();
         List<WorkoutLogResponse> response = workoutService.getDailyWorkouts(userId, targetDate);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/stats/{userId}")
+    @Operation(summary = "Mendapatkan statistik latihan fisik", description = "Mengambil data statistik total latihan, total set, dan volume beban harian selama N hari ke belakang.")
+    public ResponseEntity<List<WorkoutStatsResponse>> getWorkoutStats(@PathVariable Long userId,
+                                                                      @RequestParam(defaultValue = "7") int days) {
+        List<WorkoutStatsResponse> response = workoutService.getWorkoutStats(userId, days);
         return ResponseEntity.ok(response);
     }
 }

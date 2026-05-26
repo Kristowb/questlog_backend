@@ -11,8 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.questlog.backend.dto.WorkoutStatsResponse;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +66,36 @@ public class WorkoutServiceImpl implements WorkoutService {
         return workoutLogRepository.findByUserIdAndLogDate(userId, date).stream()
                 .map(WorkoutLogResponse::fromEntity)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<WorkoutStatsResponse> getWorkoutStats(Long userId, int days) {
+        log.info("Mengambil statistik latihan fisik untuk user ID: {} selama {} hari terakhir", userId, days);
+        
+        // Validasi keberadaan user
+        userService.getUserById(userId);
+
+        LocalDate startDate = LocalDate.now().minusDays(days - 1L);
+        List<WorkoutLog> logs = workoutLogRepository.findByUserIdAndLogDateGreaterThanEqualOrderByLogDateAsc(userId, startDate);
+
+        Map<LocalDate, List<WorkoutLog>> logsByDate = logs.stream()
+                .collect(Collectors.groupingBy(WorkoutLog::getLogDate));
+
+        List<WorkoutStatsResponse> stats = new ArrayList<>();
+        for (int i = 0; i < days; i++) {
+            LocalDate date = startDate.plusDays(i);
+            List<WorkoutLog> dailyLogs = logsByDate.getOrDefault(date, Collections.emptyList());
+
+            int totalWorkouts = dailyLogs.size();
+            int totalSets = dailyLogs.stream().mapToInt(WorkoutLog::getSets).sum();
+            double totalWeightVolume = dailyLogs.stream()
+                    .mapToDouble(l -> l.getSets() * l.getReps() * l.getWeight())
+                    .sum();
+
+            stats.add(new WorkoutStatsResponse(date, totalWorkouts, totalSets, totalWeightVolume));
+        }
+
+        return stats;
     }
 }

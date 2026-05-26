@@ -11,8 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.questlog.backend.dto.DietStatsResponse;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +73,35 @@ public class DietServiceImpl implements DietService {
         return dietLogRepository.findByUserIdAndLogDate(userId, date).stream()
                 .map(DietLogResponse::fromEntity)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DietStatsResponse> getDietStats(Long userId, int days) {
+        log.info("Mengambil statistik diet untuk user ID: {} selama {} hari terakhir", userId, days);
+        
+        // Validasi keberadaan user
+        userService.getUserById(userId);
+
+        LocalDate startDate = LocalDate.now().minusDays(days - 1L);
+        List<DietLog> logs = dietLogRepository.findByUserIdAndLogDateGreaterThanEqualOrderByLogDateAsc(userId, startDate);
+
+        Map<LocalDate, List<DietLog>> logsByDate = logs.stream()
+                .collect(Collectors.groupingBy(DietLog::getLogDate));
+
+        List<DietStatsResponse> stats = new ArrayList<>();
+        for (int i = 0; i < days; i++) {
+            LocalDate date = startDate.plusDays(i);
+            List<DietLog> dailyLogs = logsByDate.getOrDefault(date, Collections.emptyList());
+
+            double totalCalories = dailyLogs.stream().mapToDouble(DietLog::getCalories).sum();
+            double totalProtein = dailyLogs.stream().mapToDouble(DietLog::getProtein).sum();
+            double totalCarbs = dailyLogs.stream().mapToDouble(DietLog::getCarbs).sum();
+            double totalFat = dailyLogs.stream().mapToDouble(DietLog::getFat).sum();
+
+            stats.add(new DietStatsResponse(date, totalCalories, totalProtein, totalCarbs, totalFat));
+        }
+
+        return stats;
     }
 }

@@ -88,4 +88,60 @@ class WorkoutServiceImplTest {
         assertThat(result.get(0).exerciseName()).isEqualTo("Bench Press");
         verify(userService, times(1)).getUserById(1L);
     }
+
+    @Test
+    void getWorkoutStats_Success() {
+        Long userId = 1L;
+        int days = 3;
+        LocalDate today = LocalDate.now();
+        
+        WorkoutLog log1 = WorkoutLog.builder()
+                .id(1L)
+                .userId(userId)
+                .exerciseName("Bench Press")
+                .sets(3)
+                .reps(10)
+                .weight(50.0) // volume = 3 * 10 * 50 = 1500
+                .logDate(today)
+                .build();
+                
+        WorkoutLog log2 = WorkoutLog.builder()
+                .id(2L)
+                .userId(userId)
+                .exerciseName("Squat")
+                .sets(4)
+                .reps(8)
+                .weight(80.0) // volume = 4 * 8 * 80 = 2560
+                .logDate(today.minusDays(1))
+                .build();
+
+        when(userService.getUserById(userId)).thenReturn(null);
+        when(workoutLogRepository.findByUserIdAndLogDateGreaterThanEqualOrderByLogDateAsc(eq(userId), any(LocalDate.class)))
+                .thenReturn(List.of(log2, log1));
+
+        List<com.questlog.backend.dto.WorkoutStatsResponse> stats = workoutService.getWorkoutStats(userId, days);
+
+        assertThat(stats).hasSize(days);
+        
+        // 2 hari yang lalu (index 0) - tidak ada workout
+        assertThat(stats.get(0).date()).isEqualTo(today.minusDays(2));
+        assertThat(stats.get(0).totalWorkouts()).isZero();
+        assertThat(stats.get(0).totalSets()).isZero();
+        assertThat(stats.get(0).totalWeightVolume()).isZero();
+
+        // kemarin (index 1) - log2
+        assertThat(stats.get(1).date()).isEqualTo(today.minusDays(1));
+        assertThat(stats.get(1).totalWorkouts()).isEqualTo(1);
+        assertThat(stats.get(1).totalSets()).isEqualTo(4);
+        assertThat(stats.get(1).totalWeightVolume()).isEqualTo(2560.0);
+
+        // hari ini (index 2) - log1
+        assertThat(stats.get(2).date()).isEqualTo(today);
+        assertThat(stats.get(2).totalWorkouts()).isEqualTo(1);
+        assertThat(stats.get(2).totalSets()).isEqualTo(3);
+        assertThat(stats.get(2).totalWeightVolume()).isEqualTo(1500.0);
+
+        verify(userService, times(1)).getUserById(userId);
+        verify(workoutLogRepository, times(1)).findByUserIdAndLogDateGreaterThanEqualOrderByLogDateAsc(eq(userId), any(LocalDate.class));
+    }
 }

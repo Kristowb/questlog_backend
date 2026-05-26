@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.questlog.backend.dto.DietStatsResponse;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -37,6 +38,14 @@ public class DietController {
                                                               @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         LocalDate targetDate = date != null ? date : LocalDate.now();
         List<DietLogResponse> response = dietService.getDailyDiet(userId, targetDate);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/stats/{userId}")
+    @Operation(summary = "Mendapatkan statistik diet", description = "Mengambil data statistik asupan kalori dan makro gizi harian selama N hari ke belakang.")
+    public ResponseEntity<List<DietStatsResponse>> getDietStats(@PathVariable Long userId,
+                                                                @RequestParam(defaultValue = "7") int days) {
+        List<DietStatsResponse> response = dietService.getDietStats(userId, days);
         return ResponseEntity.ok(response);
     }
 }

@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Long> {
     List<WorkoutLog> findByUserIdAndLogDate(Long userId, LocalDate logDate);
+    List<WorkoutLog> findByUserIdAndLogDateGreaterThanEqualOrderByLogDateAsc(Long userId, LocalDate startDate);
     long countByUserId(Long userId);
 }

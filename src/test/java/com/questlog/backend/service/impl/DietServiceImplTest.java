@@ -113,4 +113,65 @@ class DietServiceImplTest {
         assertThat(result.get(0).foodName()).isEqualTo("Apple");
         verify(userService, times(1)).getUserById(1L);
     }
+
+    @Test
+    void getDietStats_Success() {
+        Long userId = 1L;
+        int days = 3;
+        LocalDate today = LocalDate.now();
+        
+        DietLog log1 = DietLog.builder()
+                .id(1L)
+                .userId(userId)
+                .foodName("Apple")
+                .calories(95.0)
+                .protein(0.3)
+                .carbs(25.0)
+                .fat(0.0)
+                .logDate(today)
+                .build();
+                
+        DietLog log2 = DietLog.builder()
+                .id(2L)
+                .userId(userId)
+                .foodName("Chicken Breast")
+                .calories(165.0)
+                .protein(31.0)
+                .carbs(0.0)
+                .fat(3.6)
+                .logDate(today.minusDays(1))
+                .build();
+
+        when(userService.getUserById(userId)).thenReturn(null);
+        when(dietLogRepository.findByUserIdAndLogDateGreaterThanEqualOrderByLogDateAsc(eq(userId), any(LocalDate.class)))
+                .thenReturn(List.of(log2, log1));
+
+        List<com.questlog.backend.dto.DietStatsResponse> stats = dietService.getDietStats(userId, days);
+
+        assertThat(stats).hasSize(days);
+        
+        // 2 hari yang lalu (index 0) - tidak ada diet log
+        assertThat(stats.get(0).date()).isEqualTo(today.minusDays(2));
+        assertThat(stats.get(0).totalCalories()).isZero();
+        assertThat(stats.get(0).totalProtein()).isZero();
+        assertThat(stats.get(0).totalCarbs()).isZero();
+        assertThat(stats.get(0).totalFat()).isZero();
+
+        // kemarin (index 1) - log2
+        assertThat(stats.get(1).date()).isEqualTo(today.minusDays(1));
+        assertThat(stats.get(1).totalCalories()).isEqualTo(165.0);
+        assertThat(stats.get(1).totalProtein()).isEqualTo(31.0);
+        assertThat(stats.get(1).totalCarbs()).isEqualTo(0.0);
+        assertThat(stats.get(1).totalFat()).isEqualTo(3.6);
+
+        // hari ini (index 2) - log1
+        assertThat(stats.get(2).date()).isEqualTo(today);
+        assertThat(stats.get(2).totalCalories()).isEqualTo(95.0);
+        assertThat(stats.get(2).totalProtein()).isEqualTo(0.3);
+        assertThat(stats.get(2).totalCarbs()).isEqualTo(25.0);
+        assertThat(stats.get(2).totalFat()).isEqualTo(0.0);
+
+        verify(userService, times(1)).getUserById(userId);
+        verify(dietLogRepository, times(1)).findByUserIdAndLogDateGreaterThanEqualOrderByLogDateAsc(eq(userId), any(LocalDate.class));
+    }
 }

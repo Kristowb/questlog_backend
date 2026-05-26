@@ -9,7 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 @Entity
-@Table(name = "diet_logs")
+@Table(
+    name = "diet_logs",
+    indexes = {
+        @Index(name = "idx_diet_user_date", columnList = "user_id, log_date")
+    }
+)
 @Getter
 @Setter
 @NoArgsConstructor
