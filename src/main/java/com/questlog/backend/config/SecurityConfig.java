@@ -35,7 +35,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/auth/google").permitAll()
-                        .requestMatchers("/api/v1/premium/mock-checkout", "/api/v1/premium/mock-success", "/api/v1/premium/webhook").permitAll()
+                        .requestMatchers("/api/v1/premium/mock-checkout", "/api/v1/premium/mock-success", "/api/v1/premium/webhook", "/api/v1/premium/success", "/api/v1/premium/cancel").permitAll()
                         // Secured endpoints
                         .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().permitAll()
