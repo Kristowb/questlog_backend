@@ -9,4 +9,5 @@ public interface UserService {
     UserResponse addXp(Long userId, int xpAmount, String xpType);
     List<UserResponse> getLeaderboard();
     UserResponse setPremium(Long userId, boolean isPremium);
+    UserResponse addCoins(Long userId, int coinAmount);
 }

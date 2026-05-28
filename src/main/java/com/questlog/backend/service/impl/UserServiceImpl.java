@@ -114,4 +114,14 @@ public class UserServiceImpl implements UserService {
         user.setPremium(isPremium);
         return com.questlog.backend.dto.UserResponse.fromEntity(userRepository.save(user));
     }
+
+    @Override
+    @Transactional
+    public com.questlog.backend.dto.UserResponse addCoins(Long userId, int coinAmount) {
+        log.info("Menambahkan {} koin ke user ID {}", coinAmount, userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User dengan ID " + userId + " tidak ditemukan"));
+        user.setCoins(user.getCoins() + coinAmount);
+        return com.questlog.backend.dto.UserResponse.fromEntity(userRepository.save(user));
+    }
 }

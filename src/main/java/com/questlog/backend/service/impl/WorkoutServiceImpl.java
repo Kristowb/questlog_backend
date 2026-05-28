@@ -27,6 +27,7 @@ public class WorkoutServiceImpl implements WorkoutService {
     private final WorkoutLogRepository workoutLogRepository;
     private final UserService userService;
     private final com.questlog.backend.service.AchievementService achievementService;
+    private final com.questlog.backend.service.RaidBossService raidBossService;
 
     @Override
     @Transactional
@@ -48,6 +49,14 @@ public class WorkoutServiceImpl implements WorkoutService {
         WorkoutLog savedLog = workoutLogRepository.save(logObj);
         log.info("Memberikan hadiah +10 STRENGTH XP ke user ID: {}", logObj.getUserId());
         userService.addXp(logObj.getUserId(), 10, "STRENGTH");
+        
+        // Daftarkan damage serangan ke Raid Boss harian
+        double damage = request.sets() * request.reps() * request.weight();
+        try {
+            raidBossService.registerDamage(request.userId(), damage);
+        } catch (Exception e) {
+            log.error("Gagal mendaftarkan damage latihan ke Raid Boss: {}", e.getMessage());
+        }
         
         // Periksa kelayakan pencapaian
         achievementService.checkAndUnlockAchievements(logObj.getUserId(), "WORKOUT");

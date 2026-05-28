@@ -33,6 +33,9 @@ class WorkoutServiceImplTest {
     @Mock
     private com.questlog.backend.service.AchievementService achievementService;
 
+    @Mock
+    private com.questlog.backend.service.RaidBossService raidBossService;
+
     @InjectMocks
     private WorkoutServiceImpl workoutService;
 
@@ -64,6 +67,7 @@ class WorkoutServiceImplTest {
         assertThat(response.exerciseName()).isEqualTo("Bench Press");
         verify(userService, times(1)).getUserById(1L);
         verify(userService, times(1)).addXp(1L, 10, "STRENGTH");
+        verify(raidBossService, times(1)).registerDamage(1L, 4.0 * 10.0 * 60.0);
         verify(workoutLogRepository, times(1)).save(any(WorkoutLog.class));
     }
 
